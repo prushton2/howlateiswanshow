@@ -13,7 +13,7 @@ let wanShowTimes = {
     }
 }
 
-// wanShowTimes = {start: {day: 0,hour: 0},end: {day: 6,hour: 23}}
+wanShowTimes = {start: {day: 0,hour: 0},end: {day: 6,hour: 23}}
 
 
 
@@ -46,4 +46,4 @@ app.get("/status", async(req, res) => {
 })
 
 
-app.listen(8080, () => {})
+app.listen(8000, () => {})
