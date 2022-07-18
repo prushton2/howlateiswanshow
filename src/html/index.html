@@ -23,21 +23,22 @@
         <div class="container">
             <p>How Late is the Wan Show?</p>
             <p>
-                <label id="title">The wan show is </label><label id="status">time</label></label id="time"></label>
+                <label id="title">The wan show is </label><label id="status">time</label> <label id="time"></label>
             </p>
         </div>
 		
         <script type="module">
 			let now = new Date()
 			let wanStart = new Date( Date.UTC( now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0, 0 ) )
+			// let wanStart = new Date( Date.UTC( now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0 ) )
 			
 
 			//function to continually update the time
 			async function updateTime() {
 				now = new Date()
 				let deltaTime = now.getTime() - wanStart.getTime()
-				console.log(deltaTime)
-				document.getElementById("time").innerHTML = new Date(deltaTime)
+                let deltaTimeString = (new Date(deltaTime)).toUTCString()
+				document.getElementById("time").innerHTML = "by "+deltaTimeString.split(" ")[4]
 				await setTimeout(async() => {await updateTime()}, 1000)
 			}
 
