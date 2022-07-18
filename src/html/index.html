@@ -1,12 +1,39 @@
 <!DOCTYPE html>
 <html>
-
     <meta name="color-scheme" content="light dark">
-
+    
     <head>
         
+        <style>
+            .container {
+                font-family: arial;
+                font-size: 24px;
+                margin: 25px;
+                width: 100%;
+            }
+
+            p {
+                text-align: center;
+            }
+        </style>
+
     </head>
+    
     <body>
-        
+        <div class="container">
+            <p>How Late is the Wan Show?</p>
+            <p>
+                <label id="title">The wan show is </label><label id="time">time</label>
+            </p>
+        </div>
+
+        <script type="module">
+            //get the status of the WAN show
+            let status = await fetch(`${window.location}status`)
+            status = await status.text()
+            document.getElementById("time").innerHTML = status
+            //continually update the status of the wan show
+        </script>
     </body>
+
 </html>
