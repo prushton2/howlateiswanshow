@@ -33,7 +33,18 @@ app.get("/status", async(req, res) => {
 
     //check if stream is live
 
-    
+    let response = await isWanShowLive()
+
+    if(response == "Invalid Bearer Token") {
+        let newToken = await getNewAccessToken()
+        process.env.ACCESS_TOKEN = newToken
+        response = await isWanShowLive()
+    }
+
+    if(response == "online") {
+        res.send("live!")
+        return
+    }
 
 
     //check if its time for wan show
@@ -61,11 +72,16 @@ async function isWanShowLive() {
 	}
 	let response = "null"
 	try {
-		response = await axios.get("https://api.twitch.tv/helix/streams?user_login=linustech", config)
+		response = await axios.get("https://api.twitch.tv/helix/streams?user_login=trainwreckstv", config)
 	} catch(error) {
-		console.log(error)
+		// console.log(error)
 		return "Invalid Bearer Token"
 	}
+
+    // if(response.response.data.status == 401) {
+    //     return "Invalid Bearer Token"
+    // }
+
 	return response.data != '{"data":[],"pagination":{}}' ? "offline" : "online"
 }
 async function getNewAccessToken() {
@@ -77,5 +93,5 @@ async function getNewAccessToken() {
         console.log(error)
         return "Error getting ID"
     }
-    return response.data
+    return response.data.access_token
 }
