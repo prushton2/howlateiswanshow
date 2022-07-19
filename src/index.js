@@ -1,5 +1,8 @@
 const express = require("express")
 const fs = require("fs")
+const axios = require("axios")
+const env = require("dotenv")
+require("dotenv").config()
 
 let indexfile = 'src/html/index.html'
 let wanShowTimes = {
@@ -20,9 +23,7 @@ let wanShowTimes = {
 const app = express()
 
 app.get("/", async(req, res) => {
-
     let index = fs.readFileSync(indexfile, 'utf8');
-
     res.end(index)
 })
 
@@ -31,6 +32,8 @@ app.get("/status", async(req, res) => {
     const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours()}
 
     //check if stream is live
+
+
 
 
     //check if its time for wan show
@@ -45,5 +48,29 @@ app.get("/status", async(req, res) => {
     res.send("not on yet")
 })
 
+app.get("/debug", async(req, res) => {
+	res.send(await isWanShowLive())
+})
 
 app.listen(8000, () => {})
+
+
+async function isWanShowLive() {
+	const config = {
+		headers: {
+			"Client-Id": process.env.CLIENT_ID,
+			"Authorization": "Bearer " + process.env.ACCESS_TOKEN
+		}
+	}
+	let response = "null"
+	try {
+		response = await axios.get("https://api.twitch.tv/helix/streams?user_login=linustech", config)
+	} catch(error) {
+		console.log(error)
+		return "Invalid Bearer Token"
+	}
+	return response.data != '{"data":[],"pagination":{}}' ? "offline" : "online"
+}
+async function getNewAccessToken() {
+
+}
