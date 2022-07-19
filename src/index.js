@@ -33,7 +33,7 @@ app.get("/status", async(req, res) => {
 
     //check if stream is live
 
-
+    
 
 
     //check if its time for wan show
@@ -48,9 +48,6 @@ app.get("/status", async(req, res) => {
     res.send("not on yet")
 })
 
-app.get("/debug", async(req, res) => {
-	res.send(await isWanShowLive())
-})
 
 app.listen(8000, () => {})
 
@@ -72,5 +69,13 @@ async function isWanShowLive() {
 	return response.data != '{"data":[],"pagination":{}}' ? "offline" : "online"
 }
 async function getNewAccessToken() {
-
+    const config = {}
+    let response
+    try {
+        response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}&grant_type=client_credentials`)
+    } catch (error) {
+        console.log(error)
+        return "Error getting ID"
+    }
+    return response.data
 }
