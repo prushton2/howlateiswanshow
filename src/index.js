@@ -1,8 +1,12 @@
 const express = require("express")
+const app = express()
+
 const fs = require("fs")
 const axios = require("axios")
+
 const env = require("dotenv")
 require("dotenv").config()
+
 
 let indexfile = 'src/html/index.html'
 let wanShowTimes = {
@@ -16,11 +20,12 @@ let wanShowTimes = {
     }
 }
 
+let latestStatus = {
+    status: 0,
+    recordedAt: 0
+}
+
 // wanShowTimes = {start: {day: 1,hour: 16},end: {day: 6,hour: 23}}
-
-
-
-const app = express()
 
 app.get("/", async(req, res) => {
     let index = fs.readFileSync(indexfile, 'utf8');
@@ -29,9 +34,56 @@ app.get("/", async(req, res) => {
 
 app.get("/status", async(req, res) => {
     const date = new Date()
-    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours()}
-
     
+    if(latestStatus.recordedAt < date.getTime()-10_000) { //caches the state for 10 seconds
+        latestStatus = {
+            status: await updateStatus(),
+            recordedAt: date.getTime()
+        }
+    }
+
+    res.send(latestStatus.status)
+    
+})
+
+
+app.listen(8000, () => {})
+
+//check if wan is live on twitch.tv/LinusTech
+async function isWanShowLive() {
+	const config = {
+		headers: {
+			"Client-Id": process.env.CLIENT_ID,
+			"Authorization": "Bearer " + process.env.ACCESS_TOKEN
+		}
+	}
+	let response
+	try {
+		response = await axios.get("https://api.twitch.tv/helix/streams?user_login=linustech", config)
+	} catch(error) {
+		console.log(error)
+		return "Invalid Bearer Token"
+	}
+
+	return JSON.stringify(response.data) == '{"data":[],"pagination":{}}' ? "offline" : "online"
+}
+
+//get a new access token if the current one is dead, they expire after 3 months
+async function getNewAccessToken() {
+    let response
+    try {
+        response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}&grant_type=client_credentials`)
+    } catch (error) {
+        console.log(error)
+        return "Error getting ID"
+    }
+    return response.data.access_token
+}
+
+//update the status of the website. Runs every 10 seconds at the most
+async function updateStatus() {
+    const date = new Date()
+    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours()}
     //check if stream is live
     let response = await isWanShowLive()
 
@@ -43,51 +95,17 @@ app.get("/status", async(req, res) => {
 
     //if the stream is live, return the stream link
     if(response == "online") {
-        res.send("live at <a href='https://twitch.tv/LinusTech'>twitch.tv/LinusTech</a>")
-        return
+        return "live at <a href='https://twitch.tv/LinusTech'>twitch.tv/LinusTech</a>"
     }
 
 
     //check if its time for wan show
     if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
         if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
-            res.send("late")
-            return
+            return "late"
         }
     }
 
     //else say its not time yet
-    res.send("not on yet")
-})
-
-
-app.listen(8000, () => {})
-
-
-async function isWanShowLive() {
-	const config = {
-		headers: {
-			"Client-Id": process.env.CLIENT_ID,
-			"Authorization": "Bearer " + process.env.ACCESS_TOKEN
-		}
-	}
-	let response = "null"
-	try {
-		response = await axios.get("https://api.twitch.tv/helix/streams?user_login=linustech", config)
-	} catch(error) {
-		console.log(error)
-		return "Invalid Bearer Token"
-	}
-
-	return JSON.stringify(response.data) == '{"data":[],"pagination":{}}' ? "offline" : "online"
-}
-async function getNewAccessToken() {
-    let response
-    try {
-        response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}&grant_type=client_credentials`)
-    } catch (error) {
-        console.log(error)
-        return "Error getting ID"
-    }
-    return response.data.access_token
+    return "not on yet"
 }
