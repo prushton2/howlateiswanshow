@@ -51,7 +51,7 @@ app.get("/status", async(req, res) => {
 
     //check if its time for wan show
     if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["hour"] >= wanShowTimes["start"]["hour"]) {
-        if(dateJson["day"] <= wanShowTimes["end"]["day"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
+        if(dateJson["day"] >= wanShowTimes["end"]["day"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
             res.send("late")
             return
         }
