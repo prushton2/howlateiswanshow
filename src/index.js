@@ -10,6 +10,8 @@ require("dotenv").config()
 const port = 8000
 
 let indexfile = 'src/html/index.html'
+let dataJsonFile = 'src/data.json'
+
 let wanShowTimes = { //times are in UTC
     start: {
         day: 6,
@@ -49,6 +51,12 @@ app.get("/status", async(req, res) => {
     
 })
 
+app.get("/recordTimeLate", async(req, res) => {
+    let data = JSON.parse(fs.readFileSync(dataJsonFile))
+    data = new Date(data.recordTimeLate).toUTCString()
+    res.send(data.split(" ")[4])
+})
+
 app.get("/favicon.ico", async(req, res) => {
     res.sendFile(path.resolve("src/html/soontm.png"))
 })
@@ -83,37 +91,49 @@ async function getNewAccessToken() {
         console.log(error)
         return "Error getting ID"
     }
+    console.log(response.data.access_token)
     return response.data.access_token
 }
 
 //update the status of the website. Runs every 10 seconds at the most
 async function updateStatus() {
     const date = new Date()
+    let startDate = new Date( Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 24, 0, 0, 0) )
     const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours(), "minute": date.getMinutes()}
     //check if stream is live
     let response = await isWanShowLive()
-
+    
+    //--------------------
+    
     if(response == "Invalid Bearer Token") { //get a new key if the current one is dead
         let newToken = await getNewAccessToken()
         process.env.ACCESS_TOKEN = newToken
         response = await isWanShowLive()
     }
-
-    //if the stream is live, return the stream link
+    
+    // if the stream is live, return the stream link
     if(response == "online") {
         return "live at <a href='https://twitch.tv/LinusTech'>twitch.tv/LinusTech</a>"
     }
-
 
     //check if its time for wan show
     if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
         if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
             if(dateJson["minute"] >= wanShowTimes["start"]["minute"] && dateJson["minute"] <= wanShowTimes["end"]["minute"]) {
+                updateRecordLateTime(date - startDate)
                 return "late"
             }
         }
     }
-
+        
     //else say its not time yet
     return "not on yet"
+}
+    
+async function updateRecordLateTime(lateTime) {
+    let data = JSON.parse(fs.readFileSync(dataJsonFile))
+    if(data.recordTimeLate < lateTime) {
+        data.recordTimeLate = lateTime
+        fs.writeFileSync(dataJsonFile, JSON.stringify(data))
+    }
 }

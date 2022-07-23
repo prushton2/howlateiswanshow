@@ -7,6 +7,11 @@
 CLIENT_ID= <client id>
 CLIENT_SECRET= <client secret>
 ACCESS_TOKEN=None
-
+```
+* create ```data.json``` and populate it like so:
+```javascript
+{
+    "recordTimeLate": 0 
+}
 ```
 * run ```npm start``` and visit the site under the port ```8000```
