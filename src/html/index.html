@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
     <meta name="color-scheme" content="light dark">
-    
+
     <head>
-        
+        <title>How Late is the Wan Show?</title>    
         <style>
             .container {
                 font-family: arial;
@@ -22,7 +22,7 @@
         <div class="container">
             <p>How Late is the Wan Show?</p>
             <p>
-                <label id="title">The wan show is </label><label id="status">...</label> <label id="time">de</label>
+                <label id="title">The wan show is </label><label id="status">...</label> <label id="time"></label>
             </p>
         </div>
 		
@@ -44,6 +44,7 @@
 
                 if(x == 9) { //check for uppdate every 10 secs
                     status = await fetch(`${window.location}status`)
+                    status = await status.text()
                 }
 
 				if(status == "late") { //show timer if late

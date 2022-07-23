@@ -1,17 +1,12 @@
-# howlateiswanshow
+# How Late Is Wan Show
 
-## getting started
-
-`npm install`
-`npm start`
-there probably wont be any meaningful output but the server will be on appear on localhost:8000
-
-## Environment vars
-```
-CLIENT_ID=
-CLIENT_SECRET=
+## Setting up to run locally:
+* Create an app at https://dev.twitch.tv/console/apps
+* Create a .env file and populate it like so:
+```env
+CLIENT_ID= <client id>
+CLIENT_SECRET= <client secret>
 ACCESS_TOKEN=None
+
 ```
-the code autogenerates access tokens
-
-
+* run ```npm start``` and visit the site under the port ```8000```
