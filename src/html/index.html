@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <meta name="color-scheme" content="light dark">
-    
+
     <head>
         
         <style>
@@ -45,6 +45,7 @@
 
                 if(x == 9) { //check for uppdate every 10 secs
                     status = await fetch(`${window.location}status`)
+                    status = await status.text()
                 }
 
 				if(status == "late") { //show timer if late

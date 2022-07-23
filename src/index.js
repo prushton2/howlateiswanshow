@@ -3,6 +3,7 @@ const app = express()
 
 const fs = require("fs")
 const axios = require("axios")
+const path = require("path")
 
 const env = require("dotenv")
 require("dotenv").config()
@@ -46,6 +47,9 @@ app.get("/status", async(req, res) => {
     
 })
 
+app.get("/favicon.ico", async(req, res) => {
+    res.sendFile(path.resolve("src/html/soontm.png"))
+})
 
 app.listen(8000, () => {})
 
