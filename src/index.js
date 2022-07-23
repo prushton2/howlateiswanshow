@@ -15,11 +15,13 @@ let dataJsonFile = 'src/data.json'
 let wanShowTimes = { //times are in UTC
     start: {
         day: 6,
-        hour: 0
+        hour: 0,
+        minute: 0
     },
     end: {
         day: 6,
-        hour: 2
+        hour: 2,
+        minute: 1
     }
 }
 
@@ -91,7 +93,7 @@ async function getNewAccessToken() {
 async function updateStatus() {
     const date = new Date()
     let startDate = new Date( Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 24, 0, 0, 0) )
-    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours()}
+    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours(), "minute": date.getMinutes()}
     //check if stream is live
     let response = await isWanShowLive()
     
@@ -107,19 +109,20 @@ async function updateStatus() {
     if(response == "online") {
         return "live at <a href='https://twitch.tv/LinusTech'>twitch.tv/LinusTech</a>"
     }
-        
-        //check if its time for wan show
-        if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
-            if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
-            
+
+    //check if its time for wan show
+    if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
+        if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
+            if(dateJson["minute"] >= wanShowTimes["start"]["minute"] && dateJson["minute"] <= wanShowTimes["end"]["minute"]) {
                 updateRecordLateTime(parseInt((date - startDate)/1000))
                 return "late"
             }
         }
-        
-        //else say its not time yet
-        return "not on yet"
     }
+        
+    //else say its not time yet
+    return "not on yet"
+}
     
 async function updateRecordLateTime(lateTime) {
     let data = JSON.parse(fs.readFileSync(dataJsonFile))
