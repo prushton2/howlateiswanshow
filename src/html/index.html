@@ -27,6 +27,14 @@
                 bottom: 0;
                 padding: 5px
             }
+            .recordTimeLabel {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                padding: 5px;
+                text-align: center;
+            }
+            
         </style>
 
     </head>
@@ -39,6 +47,10 @@
             </p>
         </div>
 
+        <label id="recordTimeLate" class="recordTimeLabel">
+            
+        </label>
+
         <footer>
             <a href="https://github.com/prushton2/howlateiswanshow">GitHub</a>
         </footer>
@@ -50,6 +62,10 @@
             let status = await fetch(`${window.location}status`)
             status = await status.text()
 			
+            let recordTimeLate = await fetch(`${window.location}recordTimeLate`)
+            recordTimeLate = await recordTimeLate.text()
+            document.getElementById("recordTimeLate").innerHTML = `Latest WAN show:<br>${recordTimeLate}`
+
             function updateDisplay() {
                 document.getElementById("status").innerHTML = status
                 if(status != "late") {

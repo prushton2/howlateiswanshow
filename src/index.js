@@ -51,6 +51,12 @@ app.get("/status", async(req, res) => {
     
 })
 
+app.get("/recordTimeLate", async(req, res) => {
+    let data = JSON.parse(fs.readFileSync(dataJsonFile))
+    data = new Date(data.recordTimeLate).toUTCString()
+    res.send(data.split(" ")[4])
+})
+
 app.get("/favicon.ico", async(req, res) => {
     res.sendFile(path.resolve("src/html/soontm.png"))
 })
@@ -114,7 +120,7 @@ async function updateStatus() {
     if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
         if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
             if(dateJson["minute"] >= wanShowTimes["start"]["minute"] && dateJson["minute"] <= wanShowTimes["end"]["minute"]) {
-                updateRecordLateTime(parseInt((date - startDate)/1000))
+                updateRecordLateTime(date - startDate)
                 return "late"
             }
         }
