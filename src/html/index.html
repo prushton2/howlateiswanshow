@@ -5,14 +5,27 @@
     <head>
         <title>How Late is the Wan Show?</title>    
         <style>
-            .container {
+            body {
                 font-family: arial;
+            }
+
+            .container {
+                
                 font-size: 24px;
                 width: 100%;
             }
 
             p {
                 text-align: center;
+            }
+            /*
+            this is a bit of a janky way to do a footer that sticks to tbe bottom. it sticks to the bottom of the screen/browser window.
+            this means it will probably break once the page content gets longer than the browser viewport
+            */
+            footer {
+                position: fixed;
+                bottom: 0;
+                padding: 5px
             }
         </style>
 
@@ -25,6 +38,11 @@
                 <label id="title">The wan show is </label><label id="status">...</label> <label id="time"></label>
             </p>
         </div>
+
+        <footer>
+            <a href="https://github.com/prushton2/howlateiswanshow">GitHub</a>
+        </footer>
+    
 		
         <script type="module">
 			let now = new Date()
