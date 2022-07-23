@@ -7,10 +7,10 @@ const path = require("path")
 
 const env = require("dotenv")
 require("dotenv").config()
-
+const port = 8000
 
 let indexfile = 'src/html/index.html'
-let wanShowTimes = {
+let wanShowTimes = { //times are in UTC
     start: {
         day: 6,
         hour: 0
@@ -21,7 +21,7 @@ let wanShowTimes = {
     }
 }
 
-let latestStatus = {
+let latestStatus = { //cached status
     status: 0,
     recordedAt: 0
 }
@@ -43,7 +43,7 @@ app.get("/status", async(req, res) => {
         }
     }
 
-    res.send(latestStatus.status)
+    res.send(latestStatus.status) //send the cached status
     
 })
 
@@ -51,7 +51,7 @@ app.get("/favicon.ico", async(req, res) => {
     res.sendFile(path.resolve("src/html/soontm.png"))
 })
 
-app.listen(8000, () => {})
+app.listen(port, () => { console.log(`Site is live at port ${port}`)})
 
 //check if wan is live on twitch.tv/LinusTech
 async function isWanShowLive() {
