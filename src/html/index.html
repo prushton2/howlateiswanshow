@@ -23,35 +23,45 @@
         <div class="container">
             <p>How Late is the Wan Show?</p>
             <p>
-                <label id="title">The wan show is </label><label id="status">...</label> <label id="time"></label>
+                <label id="title">The wan show is </label><label id="status">...</label> <label id="time">de</label>
             </p>
         </div>
 		
         <script type="module">
 			let now = new Date()
 			let wanStart = new Date( Date.UTC( now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0, 0 ) )
-			
-
-			//function to continually update the time
-			async function updateTime() {
-				now = new Date()
-				let deltaTime = now.getTime() - wanStart.getTime()
-                let deltaTimeString = (new Date(deltaTime)).toUTCString()
-				document.getElementById("time").innerHTML = "by "+deltaTimeString.split(" ")[4]
-				await setTimeout(async() => {await updateTime()}, 1000)
-			}
-
-            //get the status of the WAN show
             let status = await fetch(`${window.location}status`)
             status = await status.text()
-            document.getElementById("status").innerHTML = status
-            //continually update the status of the wan show
-			if(status == "late") {
-				// while(true) {
-				await updateTime()
-					// await setTimeout(1000, () => {})
-				// }
+			
+            function updateDisplay() {
+                document.getElementById("status").innerHTML = status
+                if(status != "late") {
+                    document.getElementById("time").innerHTML = ""
+                }
+            }
+            //function to continually update the time
+			async function updateState(x) {
+                x += 1
+
+                if(x == 9) { //check for uppdate every 10 secs
+                    status = await fetch(`${window.location}status`)
+                }
+
+				if(status == "late") { //show timer if late
+                    now = new Date()
+                    let deltaTime = now.getTime() - wanStart.getTime()
+                    let deltaTimeString = (new Date(deltaTime)).toUTCString()
+                    document.getElementById("time").innerHTML = "by "+deltaTimeString.split(" ")[4]
+                }
+
+                updateDisplay() // update the status label
+
+                await setTimeout(async() => {await updateState(x % 10)}, 1000) //refresh each second
 			}
+
+            //continually update the status of the wan show
+
+            await updateState(0)
 			
         </script>
     </body>
