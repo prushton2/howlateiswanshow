@@ -13,11 +13,13 @@ let indexfile = 'src/html/index.html'
 let wanShowTimes = { //times are in UTC
     start: {
         day: 6,
-        hour: 0
+        hour: 0,
+        minute: 0
     },
     end: {
         day: 6,
-        hour: 2
+        hour: 2,
+        minute: 1
     }
 }
 
@@ -87,7 +89,7 @@ async function getNewAccessToken() {
 //update the status of the website. Runs every 10 seconds at the most
 async function updateStatus() {
     const date = new Date()
-    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours()}
+    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours(), "minute": date.getMinutes()}
     //check if stream is live
     let response = await isWanShowLive()
 
@@ -106,7 +108,9 @@ async function updateStatus() {
     //check if its time for wan show
     if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
         if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
-            return "late"
+            if(dateJson["minute"] >= wanShowTimes["start"]["minute"] && dateJson["minute"] <= wanShowTimes["end"]["minute"]) {
+                return "late"
+            }
         }
     }
 
