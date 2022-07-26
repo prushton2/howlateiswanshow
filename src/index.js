@@ -12,17 +12,9 @@ const port = 8000
 let indexfile = 'src/html/index.html'
 let dataJsonFile = 'src/data.json'
 
-let wanShowTimes = { //times are in UTC
-    start: {
-        day: 6,
-        hour: 0,
-        minute: 0
-    },
-    end: {
-        day: 6,
-        hour: 2,
-        minute: 1
-    }
+let wanShowTimes = { //times are in UTC, represented as seconds since 00:00 on Sunday.
+    start: 6 * 86400, //6 days after 00:00
+    end: (6 * 86400) + (2 * 3600) //6 days after 00:00 + 2 hours
 }
 
 let latestStatus = { //cached status
@@ -99,12 +91,10 @@ async function getNewAccessToken() {
 async function updateStatus() {
     const date = new Date()
     let startDate = new Date( Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 24, 0, 0, 0) )
-    const dateJson = {"day": date.getUTCDay(), "hour": date.getUTCHours(), "minute": date.getMinutes()}
+    const dateJson = {"time": (date.getUTCDay() * 86400) + (date.getUTCHours() * 3600) + (date.getMinutes() * 60) + date.getSeconds()}
+    
     //check if stream is live
     let response = await isWanShowLive()
-    
-    //--------------------
-    
     if(response == "Invalid Bearer Token") { //get a new key if the current one is dead
         let newToken = await getNewAccessToken()
         process.env.ACCESS_TOKEN = newToken
@@ -117,14 +107,10 @@ async function updateStatus() {
     }
 
     //check if its time for wan show
-    if(dateJson["day"] >= wanShowTimes["start"]["day"] && dateJson["day"] <= wanShowTimes["end"]["day"]) {
-        if(dateJson["hour"] >= wanShowTimes["start"]["hour"] && dateJson["hour"] <= wanShowTimes["end"]["hour"]) {
-            if(dateJson["minute"] >= wanShowTimes["start"]["minute"] && dateJson["minute"] <= wanShowTimes["end"]["minute"]) {
-                updateRecordLateTime(date - startDate)
-                return "late"
-            }
-        }
-    }
+    if(dateJson["time"] >= wanShowTimes["start"] && dateJson["time"] <= wanShowTimes["end"]) {
+		updateRecordLateTime(date - startDate)
+		return "late"
+	}
         
     //else say its not time yet
     return "not on yet"
