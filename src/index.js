@@ -32,7 +32,7 @@ app.get("/", async(req, res) => {
 app.get("/status", async(req, res) => {
     const date = new Date()
     
-    if(latestStatus.recordedAt < date.getTime()-10_000) { //caches the state for 10 seconds
+    if(latestStatus.recordedAt < date.getTime()-9_000) { //caches the state for 9 seconds
         latestStatus = {
             status: await updateStatus(),
             recordedAt: date.getTime()
